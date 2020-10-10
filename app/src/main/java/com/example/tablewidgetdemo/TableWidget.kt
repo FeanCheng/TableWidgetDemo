@@ -373,30 +373,6 @@ class TableWidget @JvmOverloads constructor(
 //    }
 
 
-    fun setVerticalCenter() {
-        (parent as? ViewGroup)?.let {
-            if (mCenterPoint.y.toInt() != (it.height shr 1)) {
-                updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin =
-                        ((it.height shr 1) - mCenterPoint.y - (mViewHeight + mDrawableHeight) / 2).toInt()
-                }
-                mCenterPoint.y = (it.height shr 1).toFloat()
-            }
-        }
-    }
-
-    fun setHorizontalCenter() {
-        (parent as? ViewGroup)?.let {
-            if (mCenterPoint.x.toInt() != (it.width shr 1)) {
-                updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    leftMargin =
-                        ((it.width shr 1) - mCenterPoint.x - (mViewWidth + mDrawableWidth) / 2).toInt()
-                }
-                mCenterPoint.x = (it.width shr 1).toFloat()
-            }
-        }
-    }
-
     fun updateRowCount(@IntRange(from = 1, to = 8) rowCount: Int): Int {
         if (rowCount < 1) {
             mRowCount = 1
@@ -580,40 +556,6 @@ class TableWidget @JvmOverloads constructor(
         }
     }
 
-    private fun rotate() {
-        // 角度
-        val a = distance4PointF(mCenterPoint, mPreMovePointF).toDouble()
-        val b = distance4PointF(mPreMovePointF, mCurMovePointF).toDouble()
-        val c = distance4PointF(mCenterPoint, mCurMovePointF).toDouble()
-        var cosb = (a * a + c * c - b * b) / (2 * a * c)
-        if (cosb >= 1) {
-            cosb = 1.0
-        }
-        val radian = acos(cosb)
-        var newDegree = Math.toDegrees(radian).toFloat()
-
-
-        //center -> proMove的向量，使用PointF来实现
-        val centerToProMove =
-            PointF(mPreMovePointF.x - mCenterPoint.x, mPreMovePointF.y - mCenterPoint.y)
-
-
-        //center -> curMove 的向量
-        val centerToCurMove =
-            PointF(mCurMovePointF.x - mCenterPoint.x, mCurMovePointF.y - mCenterPoint.y)
-
-
-        //向量叉乘结果, 如果结果为负数， 表示为逆时针， 结果为正数表示顺时针
-        val result =
-            centerToProMove.x * centerToCurMove.y - centerToProMove.y * centerToCurMove.x
-
-        if (result < 0) {
-            newDegree = -newDegree
-        }
-        mDegree += newDegree
-        rotation = mDegree % 360
-        safeRequestLayout()
-    }
 
 
     private fun zoom(w: Int, h: Int) {
@@ -623,17 +565,7 @@ class TableWidget @JvmOverloads constructor(
         mViewWidth = (w + dx).toInt()
         safeRequestLayout()
     }
-    //endregion
-    /**
-     * 两个点之间的距离
-     *
-     * @return
-     */
-    private fun distance4PointF(pf1: PointF, pf2: PointF): Float {
-        val disX = pf2.x - pf1.x
-        val disY = pf2.y - pf1.y
-        return sqrt(disX * disX + disY * disY.toDouble()).toFloat()
-    }
+
 
     /**
      * 当手势事件进行到 down时 需要去检测当前手势事件属于哪一种
